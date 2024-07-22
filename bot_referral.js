@@ -79,7 +79,7 @@ async function getInviteCode(telegramId) {
         if (response.data.code === 1 && response.data.data.userExist) {
             return response.data.data.inviteCode;
         }else{
-            console.log(`User id ${telegramId} not found`);
+            console.log(`User id ${telegramId} have not connected to Elfin`);
         }
     } catch (error) {
         console.error('Error fetching invite code:', error);
