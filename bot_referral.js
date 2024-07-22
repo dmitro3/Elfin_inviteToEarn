@@ -3,10 +3,15 @@ const TelegramBot = require('node-telegram-bot-api');
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors'); // Added CORS support
+const axios = require('axios');
 
 const token = '6716679212:AAGcvTcekc_V77GIntj_CJYFeHHy78jT4LE'; // Replace with your bot's token
 const WEB_APP_URL = "https://elfinmetaverse.com/";
 const game_photo_url = 'http://ec2-54-254-221-210.ap-southeast-1.compute.amazonaws.com/public/tg_referral_photo.png'; // Ensure this is correct
+
+const elfin_api = "https://api-testnet.elfin.games";
+// const elfin_api = "https://api.elfin.games";
+const elfin_web = "https://testnet.elfin.games";
 
 
 const bot = new TelegramBot(token, {
@@ -27,10 +32,20 @@ app.use(bodyParser.json());
 
 
 // Bot command to start the game with an inline keyboard button in a private chat
-bot.onText(/\/start/, (msg) => {
+bot.onText(/\/start/, async(msg) => {
     const chatId = msg.chat.id;
+    const userId = msg.from.id;
     
     if (msg.chat.type === 'private') {
+        let inviteCode = await getInviteCode(userId);
+        let captionText = "🎮 How to Participate: 🏆 \n1. 👥 Invite your squad: Get friends to register and finish tasks 📝 \n2. 🤝 Team up and dominate: Play more matches together 🔥 \n3. 📈 Level up your crew: Activate more friends to boost your team 🚀";
+
+        if(inviteCode){
+            captionText += `\n\nYour reffral link:\n${elfin_web}/?inviteCode=${inviteCode}`;
+        }else{
+            captionText += `\n\n🔗 Link your Telegram account to the Elfin website to receive your unique invite code!\nhttps://elfinmetaverse.com/dashboard`;
+        }
+
         const options = {
             reply_markup: {
                 inline_keyboard: [
@@ -40,7 +55,7 @@ bot.onText(/\/start/, (msg) => {
                 ]
             }
         };
-        bot.sendPhoto(chatId, game_photo_url, { caption: "🎮 How to Participate: 🏆 \n1. 👥 Invite your squad: Get friends to register and finish tasks 📝 \n2. 🤝 Team up and dominate: Play more matches together 🔥 \n3. 📈 Level up your crew: Activate more friends to boost your team 🚀", reply_markup: options.reply_markup })
+        bot.sendPhoto(chatId, game_photo_url, { caption: captionText, reply_markup: options.reply_markup })
             .catch(error => {
                 console.error('Error sending game photo:', error);
             });
@@ -57,6 +72,20 @@ bot.on('callback_query', async (callbackQuery) => {
         await fetchAndSendLeaderboard(chatId);
     }
 });
+
+async function getInviteCode(telegramId) {
+    try {
+        const response = await axios.get(`${elfin_api}/public/telegram/users?telegramId=${telegramId}`);
+        if (response.data.code === 1 && response.data.data.userExist) {
+            return response.data.data.inviteCode;
+        }else{
+            console.log(`User id ${telegramId} not found`);
+        }
+    } catch (error) {
+        console.error('Error fetching invite code:', error);
+    }
+    return null;
+}
 
 const PORT = process.env.PORT || 3001;
 app.listen(PORT, () => {
