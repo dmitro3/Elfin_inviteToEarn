@@ -9,9 +9,10 @@ const token = '6716679212:AAGcvTcekc_V77GIntj_CJYFeHHy78jT4LE'; // Replace with 
 const WEB_APP_URL = "https://elfinmetaverse.com/";
 const game_photo_url = 'http://ec2-54-254-221-210.ap-southeast-1.compute.amazonaws.com/public/tg_referral_photo.png'; // Ensure this is correct
 
-const elfin_api = "https://api-testnet.elfin.games";
-// const elfin_api = "https://api.elfin.games";
-const elfin_web = "https://testnet.elfin.games";
+// const elfin_api = "https://api-testnet.elfin.games";
+const elfin_api = "https://api.elfin.games";
+// const elfin_web = "https://testnet.elfin.games";
+const elfin_web = "https://elfinmetaverse.com";
 
 
 const bot = new TelegramBot(token, {
